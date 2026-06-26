@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { AnimatePresence, m } from "framer-motion";
+import { FiMusic } from "react-icons/fi";
 
 import SidebarNavItem from "./SidebarNavItem";
 import ThemeOption from "./SidebarThemeOption";
@@ -8,10 +9,12 @@ import Overlay from "../Overlay";
 
 import { useGlobalContext } from "@/context/globalContext";
 import { useTheme } from "@/context/themeContext";
+import { useQueueStore } from "@/store/queueStore";
 import { useOnClickOutside } from "@/hooks/useOnClickOutside";
 import { useMotion } from "@/hooks/useMotion";
 import { navLinks, themeOptions } from "@/constants";
 import { sideBarHeading } from "@/styles";
+import { listItem } from "@/styles";
 import { INavLink } from "@/types";
 import { cn } from "@/utils/helper";
 
@@ -19,6 +22,7 @@ const SideBar: React.FC = () => {
   const { showSidebar, setShowSidebar } = useGlobalContext();
   const { theme } = useTheme();
   const { slideIn } = useMotion();
+  const { toggleSidebar, songs } = useQueueStore();
 
   const closeSideBar = useCallback(() => {
     setShowSidebar(false);
@@ -60,6 +64,28 @@ const SideBar: React.FC = () => {
                     />
                   );
                 })}
+              </ul>
+
+              <h3 className={cn(`mt-4`, sideBarHeading)}>Playback</h3>
+              <ul className="flex flex-col sm:gap-2 xs:gap-[6px] gap-1 capitalize xs:text-[14px] text-[13.5px] font-medium">
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleSidebar();
+                      closeSideBar();
+                    }}
+                    className={cn(listItem, "w-full text-left")}
+                  >
+                    <FiMusic className="text-[18px]" />
+                    <span>Queue</span>
+                    {songs.length > 0 && (
+                      <span className="ml-auto text-xs font-bold bg-accent-orange text-white px-1.5 py-0.5 rounded-full">
+                        {songs.length > 99 ? '99+' : songs.length}
+                      </span>
+                    )}
+                  </button>
+                </li>
               </ul>
 
               <h3 className={cn(`mt-4 `, sideBarHeading)}>Theme</h3>

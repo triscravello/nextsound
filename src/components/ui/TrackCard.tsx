@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, CardContent } from './card';
-import {
-  FaClock
-} from 'react-icons/fa';
+import { FaClock, FaPlay, FaPlus } from 'react-icons/fa';
 import { ITrack } from '@/types';
+import { useQueueStore } from '@/store/queueStore';
+import { useToastStore } from '@/store/toastStore';
 import { getImageUrl, cn } from '@/utils';
 
 interface TrackCardProps {
@@ -18,13 +18,27 @@ interface TrackCardProps {
 export const TrackCard: React.FC<TrackCardProps> = ({
   track,
   category: _category,
-  isPlaying: _isPlayingProp,
-  onPlay: _onPlayProp,
+  isPlaying = false,
+  onPlay,
   variant = 'detailed',
   className
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const addToQueue = useQueueStore((s) => s.addToQueue);
+  const setSidebarOpen = useQueueStore((s) => s.setSidebarOpen);
+  const showToast = useToastStore((s) => s.showToast);
+
+  const handleAddToQueueWithFeedback = useCallback(() => {
+    addToQueue(track);
+    showToast('Added to queue');
+
+    const hintShown = sessionStorage.getItem('nextsound-queue-hint-shown');
+    if (!hintShown) {
+      setSidebarOpen(true);
+      sessionStorage.setItem('nextsound-queue-hint-shown', '1');
+    }
+  }, [addToQueue, track, showToast, setSidebarOpen]);
 
   const { poster_path, original_title: title, name, artist, album, duration } = track;
   const displayTitle = title || name || 'Unknown Track';
@@ -36,6 +50,25 @@ export const TrackCard: React.FC<TrackCardProps> = ({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const handlePlay = useCallback(() => {
+    onPlay?.(track);
+  }, [onPlay, track]);
+
+  const handleAddToQueue = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      handleAddToQueueWithFeedback();
+    },
+    [handleAddToQueueWithFeedback]
+  );
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      handleAddToQueueWithFeedback();
+    },
+    [handleAddToQueueWithFeedback]
+  );
 
   const cardHeight = variant === 'compact' ? 'h-52' : variant === 'featured' ? 'h-84' : 'h-80';
   const imageHeight = variant === 'compact' ? 160 : variant === 'featured' ? 240 : 200;
@@ -49,23 +82,21 @@ export const TrackCard: React.FC<TrackCardProps> = ({
         "shadow-sm hover:shadow-card-hover",
         "rounded-xl p-4",
         cardHeight,
-        "w-[180px]", // Slightly wider for better proportions
+        "w-[180px]",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handlePlay}
+      onContextMenu={handleContextMenu}
     >
-      {/* Main Content */}
       <div className="block relative h-full">
-        {/* Image Container */}
         <div className="relative overflow-hidden rounded-lg mb-3">
-          {/* Loading skeleton */}
           {!imageLoaded && (
             <div className="absolute inset-0 bg-gray-200 dark:bg-hover-gray animate-pulse rounded-lg" 
                  style={{ height: imageHeight }} />
           )}
           
-          {/* Album artwork */}
           <img
             src={getImageUrl(poster_path)}
             alt={displayTitle}
@@ -81,25 +112,53 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             loading="lazy"
           />
 
-          {/* Gradient overlay on hover */}
           <div className={cn(
             "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 rounded-lg",
             isHovered ? "opacity-100" : "opacity-0"
           )} />
+
+          {/* Play button overlay */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePlay();
+            }}
+            className={cn(
+              "absolute bottom-2 right-2 flex items-center justify-center w-10 h-10 rounded-full",
+              "bg-accent-orange hover:bg-accent-orange/90 text-white shadow-lg",
+              "transition-all duration-200 hover:scale-105",
+              isHovered || isPlaying ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            )}
+            aria-label={`Play ${displayTitle}`}
+          >
+            <FaPlay className="w-3.5 h-3.5 ml-0.5" />
+          </button>
+
+          {/* Add to queue button */}
+          <button
+            onClick={handleAddToQueue}
+            className={cn(
+              "absolute bottom-2 left-2 flex items-center justify-center w-8 h-8 rounded-full",
+              "bg-white text-black shadow-lg",
+              "transition-all duration-200 hover:scale-105",
+              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            )}
+            aria-label={`Add ${displayTitle} to queue`}
+          >
+            <FaPlus className="w-3 h-3" />
+          </button>
         </div>
 
-        {/* Track information */}
         <CardContent className="p-0 space-y-2">
-          {/* Track title */}
           <h3 className={cn(
             "font-semibold text-gray-900 dark:text-text-primary truncate transition-colors duration-200",
             variant === 'compact' ? "text-sm" : "text-base",
-            "group-hover:text-accent-orange dark:group-hover:text-accent-orange"
+            "group-hover:text-accent-orange dark:group-hover:text-accent-orange",
+            isPlaying && "text-accent-orange"
           )}>
             {displayTitle}
           </h3>
           
-          {/* Artist name */}
           <p className={cn(
             "text-gray-600 dark:text-text-secondary truncate font-medium",
             variant === 'compact' ? "text-xs" : "text-sm"
@@ -107,7 +166,6 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             {artist || 'Unknown Artist'}
           </p>
 
-          {/* Additional info for detailed variant */}
           {variant === 'detailed' && (
             <div className="flex items-center justify-between pt-1">
               <div className="flex items-center space-x-2 flex-1 mr-2">
@@ -128,7 +186,6 @@ export const TrackCard: React.FC<TrackCardProps> = ({
         </CardContent>
       </div>
 
-      {/* Hover glow effect */}
       <div className={cn(
         "absolute -inset-1 bg-gradient-to-r from-spotify-green via-accent-orange to-warning-amber rounded-2xl opacity-0 transition-opacity duration-500 -z-10 blur-md",
         "dark:bg-gradient-to-r dark:from-blue-800 dark:via-slate-600 dark:to-blue-800",

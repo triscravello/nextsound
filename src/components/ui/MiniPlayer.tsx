@@ -12,7 +12,8 @@ import {
   FiHeart,
   FiMoreHorizontal,
   FiMinimize2,
-  FiMaximize2
+  FiMaximize2,
+  FiList
 } from 'react-icons/fi';
 import { ITrack } from '@/types';
 import { getImageUrl, cn } from '@/utils';
@@ -33,6 +34,7 @@ interface MiniPlayerProps {
   onToggleRepeat?: () => void;
   onToggleFavorite?: () => void;
   onClose?: () => void;
+  onOpenQueue?: () => void;
   isMinimized?: boolean;
   onToggleMinimize?: () => void;
   className?: string;
@@ -53,6 +55,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
   onToggleShuffle,
   onToggleRepeat,
   onToggleFavorite,
+  onOpenQueue,
   isMinimized = false,
   onToggleMinimize,
   className
@@ -329,6 +332,17 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
             className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200"
           >
             <FiMoreHorizontal className="w-4 h-4" />
+          </Button>
+
+          {/* Queue */}
+          <Button
+            onClick={onOpenQueue}
+            variant="ghost"
+            size="icon"
+            className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-accent-orange dark:text-gray-500 dark:hover:text-accent-orange transition-colors duration-200"
+            aria-label="Open queue"
+          >
+            <FiList className="w-4 h-4" />
           </Button>
 
           {/* Minimize */}

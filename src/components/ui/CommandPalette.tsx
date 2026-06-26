@@ -38,6 +38,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     exactMatches,
     recommendations,
     recentItems,
+    quickAccessItems,
     isLoading,
     error,
     handleItemSelect,
@@ -235,14 +236,28 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     })}
                   </div>
                   <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+                      Quick Access
+                    </h3>
                     <div className="space-y-2">
-                      <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200">
-                        <FiClock className="w-5 h-5 text-blue-500 mr-3" />
-                        <div>
-                          <div className="font-medium text-gray-900 dark:text-white">Search Music</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">Find tracks, albums, artists</div>
+                      {quickAccessItems.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
+                          onClick={() => handleItemSelect(item)}
+                        >
+                          <FiMusic className="w-5 h-5 text-accent-orange mr-3" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 dark:text-white">{item.title}</div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{item.subtitle}</div>
+                          </div>
+                          {item.data?.shortcut && (
+                            <kbd className="ml-2 px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded border shrink-0">
+                              {item.data.shortcut}
+                            </kbd>
+                          )}
                         </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </>
@@ -252,13 +267,24 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     Quick Access
                   </h3>
                   <div className="space-y-2">
-                    <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200">
-                      <FiClock className="w-5 h-5 text-blue-500 mr-3" />
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">Search Music</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Find tracks, albums, artists</div>
+                    {quickAccessItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
+                        onClick={() => handleItemSelect(item)}
+                      >
+                        <FiMusic className="w-5 h-5 text-accent-orange mr-3" />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 dark:text-white">{item.title}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{item.subtitle}</div>
+                        </div>
+                        {item.data?.shortcut && (
+                          <kbd className="ml-2 px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 rounded border shrink-0">
+                            {item.data.shortcut}
+                          </kbd>
+                        )}
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </>
               )}

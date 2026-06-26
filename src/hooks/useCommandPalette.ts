@@ -4,6 +4,7 @@ import { useSearchMusicQuery } from '@/services/SpotifyAPI';
 import { ITrack } from '@/types';
 import { useTheme } from '@/context/themeContext';
 import { useGlobalContext } from '@/context/globalContext';
+import { useQueueStore } from '@/store/queueStore';
 import { getMockData, shouldUseMockData } from '@/data/mockMusicData';
 import { performEnhancedSearch } from '@/utils/searchAlgorithm';
 
@@ -41,6 +42,7 @@ export const useCommandPalette = ({
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const { showSidebar, setShowSidebar } = useGlobalContext();
+  const { toggleSidebar, songs } = useQueueStore();
 
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -130,6 +132,20 @@ export const useCommandPalette = ({
     },
 
 
+    // Player Commands
+    {
+      id: 'player-queue',
+      title: 'Open Queue',
+      subtitle: songs.length > 0
+        ? `View ${songs.length} song${songs.length === 1 ? '' : 's'} in queue`
+        : 'Open the playback queue sidebar',
+      category: 'player',
+      action: () => toggleSidebar(),
+      keywords: ['queue', 'playlist', 'up next', 'playback', 'songs'],
+      shortcut: '⌘+Q',
+      icon: '🎵'
+    },
+
     // Settings Commands
     {
       id: 'settings-theme',
@@ -164,7 +180,7 @@ export const useCommandPalette = ({
       shortcut: '⌘+?',
       icon: '⌨️'
     }
-  ], [navigate, theme, showSidebar, setTheme, setShowSidebar]);
+  ], [navigate, theme, showSidebar, setTheme, setShowSidebar, toggleSidebar, songs.length]);
 
   // Filter commands based on query
   const filteredCommands = useMemo(() => {
@@ -292,6 +308,20 @@ export const useCommandPalette = ({
   // Error state (only show errors for Spotify API, mock search shouldn't fail)
   const searchError = useMockData ? null : musicSearchError;
 
+  const quickAccessItems: SearchResult[] = useMemo(() => {
+    const queueCommand = commands.find((c) => c.id === 'player-queue');
+    if (!queueCommand) return [];
+
+    return [{
+      id: queueCommand.id,
+      type: 'command' as const,
+      title: queueCommand.title,
+      subtitle: queueCommand.subtitle,
+      data: queueCommand,
+      action: queueCommand.action,
+    }];
+  }, [commands]);
+
   return {
     query,
     setQuery,
@@ -301,6 +331,7 @@ export const useCommandPalette = ({
     exactMatches,
     recommendations,
     recentItems,
+    quickAccessItems,
     recentSearches,
     isLoading,
     error: searchError,

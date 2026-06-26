@@ -13,6 +13,7 @@ import HeaderNavItem from "./HeaderNavItem";
 
 import { useGlobalContext } from "@/context/globalContext";
 import { useTheme } from "@/context/themeContext";
+import { QueueToggle } from "@/components/queue";
 import { maxWidth } from "@/styles";
 import { navLinks } from "@/constants";
 import { THROTTLE_DELAY } from "@/utils/config";
@@ -120,6 +121,8 @@ const Header = ({ onOpenSearch }: HeaderProps) => {
             </kbd>
           </Button>
 
+          <QueueToggle isNotFoundPage={isNotFoundPage} showBg={isActive} />
+
           <div className="button relative">
             <button
               name="theme-menu"
@@ -141,7 +144,14 @@ const Header = ({ onOpenSearch }: HeaderProps) => {
           </div>
         </div>
 
-        <button
+        <div className="flex items-center gap-3 md:hidden">
+          <QueueToggle
+            isNotFoundPage={isNotFoundPage}
+            showBg={isActive}
+            className="px-2.5 py-1.5"
+            compact
+          />
+          <button
           type="button"
           name="menu"
           className={cn(
@@ -154,6 +164,7 @@ const Header = ({ onOpenSearch }: HeaderProps) => {
         >
           <AiOutlineMenu />
         </button>
+        </div>
       </nav>
     </header>
   );

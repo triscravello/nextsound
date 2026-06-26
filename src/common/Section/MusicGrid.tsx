@@ -1,5 +1,7 @@
 import { FC, useState } from "react";
 import { TrackCard } from "@/components/ui/TrackCard";
+import { useQueuePlayback } from "@/hooks/useQueuePlayback";
+import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 import { ITrack } from "@/types";
 
 interface MusicGridProps {
@@ -15,25 +17,24 @@ interface MusicGridProps {
 const MusicGrid: FC<MusicGridProps> = ({
   tracks,
   category,
-  initialDisplayCount = 18, // Show 3 rows initially (6 columns * 3 rows)
-  loadMoreCount = 18, // Load 3 more rows each time
+  initialDisplayCount = 18,
+  loadMoreCount = 18,
   onLoadMore,
   isLoadingMore = false,
   hasMoreContent = false
 }) => {
   const [visibleCount, setVisibleCount] = useState(initialDisplayCount);
+  const { playWithQueue } = useQueuePlayback();
+  const { currentTrack, isPlaying } = useAudioPlayerContext();
 
   const handlePlay = (track: ITrack) => {
-    console.log('🎵 Track clicked (audio player removed):', track.name || track.title);
-    // Audio player functionality removed - this is now just a visual music browser
+    playWithQueue(track);
   };
 
   const handleLoadMoreClick = () => {
     if (tracks.length > visibleCount) {
-      // Show more of existing tracks first
       setVisibleCount(prev => Math.min(prev + loadMoreCount, tracks.length));
     } else if (onLoadMore && hasMoreContent) {
-      // Load new tracks from API
       onLoadMore();
       setVisibleCount(prev => prev + loadMoreCount);
     }
@@ -41,19 +42,18 @@ const MusicGrid: FC<MusicGridProps> = ({
 
   const displayedTracks = tracks.slice(0, visibleCount);
   const showLoadMoreButton =
-    (tracks.length > visibleCount) || // More existing tracks to show
-    (hasMoreContent && !isLoadingMore); // Or more content available from API
+    (tracks.length > visibleCount) ||
+    (hasMoreContent && !isLoadingMore);
 
   return (
     <div className="w-full">
-      {/* Grid container */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-6">
         {displayedTracks.map((track) => (
           <div key={track.id} className="flex flex-col">
             <TrackCard
               track={track}
               category={category}
-              isPlaying={false}
+              isPlaying={currentTrack?.id === track.id && isPlaying}
               onPlay={handlePlay}
               variant="detailed"
             />
@@ -61,7 +61,6 @@ const MusicGrid: FC<MusicGridProps> = ({
         ))}
       </div>
 
-      {/* Load More Button */}
       {showLoadMoreButton && (
         <div className="flex justify-center">
           <button
@@ -81,7 +80,6 @@ const MusicGrid: FC<MusicGridProps> = ({
         </div>
       )}
 
-      {/* Loading indicator when fetching more content */}
       {isLoadingMore && !showLoadMoreButton && (
         <div className="flex justify-center py-4">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">

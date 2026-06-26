@@ -35,6 +35,7 @@ export const useAudioPlayer = () => {
     
     const handleEnded = () => {
       setState(prev => ({ ...prev, isPlaying: false, progress: 0 }));
+      window.dispatchEvent(new CustomEvent('nextsound:track-ended'));
     };
     
     const handleLoadStart = () => {
@@ -255,6 +256,7 @@ export const useAudioPlayer = () => {
             simulationInterval.current = null;
           }
           setState(prev => ({ ...prev, isPlaying: false, progress: 0 }));
+          window.dispatchEvent(new CustomEvent('nextsound:track-ended'));
         }
       }, 250); // Optimized to match real audio progress updates
     }
@@ -292,6 +294,7 @@ export const useAudioPlayer = () => {
               simulationInterval.current = null;
             }
             setState(prev => ({ ...prev, isPlaying: false, progress: 0 }));
+            window.dispatchEvent(new CustomEvent('nextsound:track-ended'));
           }
         }, 250); // Consistent timing with other progress updates
       }

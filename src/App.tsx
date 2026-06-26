@@ -11,6 +11,8 @@ import {
   DemoModeBadge,
 } from "@/common";
 import { CommandPalette } from "@/components/ui/CommandPalette";
+import { QueueSidebar, ConnectedMiniPlayer } from "@/components/queue";
+import { ToastContainer } from "@/components/ui/ToastContainer";
 
 import "react-loading-skeleton/dist/skeleton.css";
 import "swiper/css";
@@ -61,6 +63,10 @@ const App = () => {
           // Item selection handled by CommandPalette component
         }}
       />
+
+      <QueueSidebar />
+      <ConnectedMiniPlayer />
+      <ToastContainer />
 
       <Footer />
     </>

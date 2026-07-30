@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent } from './card';
-import { FaClock, FaPlay, FaPlus } from 'react-icons/fa';
+import { FaClock, FaPlay, FaPlus, FaShareAlt } from 'react-icons/fa';
 import { ITrack } from '@/types';
 import { useQueueStore } from '@/store/queueStore';
 import { useToastStore } from '@/store/toastStore';
@@ -68,6 +68,22 @@ export const TrackCard: React.FC<TrackCardProps> = ({
       handleAddToQueueWithFeedback();
     },
     [handleAddToQueueWithFeedback]
+  );
+
+  const handleShare = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const shareUrl = track.external_urls?.spotify;
+      if (!shareUrl) {
+        showToast('No shareable link available for this track');
+        return;
+      }
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => showToast('Link copied to clipboard'))
+        .catch(() => showToast('Failed to copy link'));
+    },
+    [track, showToast]
   );
 
   const cardHeight = variant === 'compact' ? 'h-52' : variant === 'featured' ? 'h-84' : 'h-80';
@@ -146,6 +162,20 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             aria-label={`Add ${displayTitle} to queue`}
           >
             <FaPlus className="w-3 h-3" />
+          </button>
+
+          {/* Share button */}
+          <button
+            onClick={handleShare}
+            className={cn(
+              "absolute top-2 right-2 flex items-center justify-center w-8 h-8 rounded-full",
+              "bg-white text-black shadow-lg",
+              "transition-all duration-200 hover:scale-105",
+              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            )}
+            aria-label={`Share ${displayTitle}`}
+          >
+            <FaShareAlt className="w-3 h-3" />
           </button>
         </div>
 

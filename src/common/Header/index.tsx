@@ -13,6 +13,7 @@ import HeaderNavItem from "./HeaderNavItem";
 
 import { useGlobalContext } from "@/context/globalContext";
 import { useTheme } from "@/context/themeContext";
+import { AuthButton } from "@/components/auth";
 import { QueueToggle } from "@/components/queue";
 import { maxWidth } from "@/styles";
 import { navLinks } from "@/constants";
@@ -122,6 +123,8 @@ const Header = ({ onOpenSearch }: HeaderProps) => {
           </Button>
 
           <QueueToggle isNotFoundPage={isNotFoundPage} showBg={isActive} />
+
+          <AuthButton isNotFoundPage={isNotFoundPage} showBg={isActive} />
 
           <div className="button relative">
             <button

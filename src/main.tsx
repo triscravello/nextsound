@@ -5,6 +5,7 @@ import { LazyMotion, domAnimation } from "framer-motion";
 import { Provider } from "react-redux";
 
 import { store } from "@/store";
+import { AuthProvider } from "@/context/authContext";
 import GlobalContextProvider from "@/context/globalContext";
 import ThemeProvider from "@/context/themeContext";
 import { AudioPlayerProvider } from "@/context/audioPlayerContext";
@@ -29,13 +30,15 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Provider store={store}>
           <ThemeProvider>
-            <GlobalContextProvider>
-              <AudioPlayerProvider>
-                <LazyMotion features={domAnimation}>
-                  <App />
-                </LazyMotion>
-              </AudioPlayerProvider>
-            </GlobalContextProvider>
+            <AuthProvider>
+              <GlobalContextProvider>
+                <AudioPlayerProvider>
+                  <LazyMotion features={domAnimation}>
+                    <App />
+                  </LazyMotion>
+                </AudioPlayerProvider>
+              </GlobalContextProvider>
+            </AuthProvider>
           </ThemeProvider>
         </Provider>
       </BrowserRouter>

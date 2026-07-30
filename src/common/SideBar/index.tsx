@@ -7,6 +7,7 @@ import ThemeOption from "./SidebarThemeOption";
 import Logo from "../Logo";
 import Overlay from "../Overlay";
 
+import { AuthButton } from "@/components/auth";
 import { useGlobalContext } from "@/context/globalContext";
 import { useTheme } from "@/context/themeContext";
 import { useQueueStore } from "@/store/queueStore";
@@ -87,6 +88,11 @@ const SideBar: React.FC = () => {
                   </button>
                 </li>
               </ul>
+
+              <h3 className={cn(`mt-4`, sideBarHeading)}>Account</h3>
+              <div className="px-1 pb-2">
+                <AuthButton showBg compact className="w-full justify-start gap-2" />
+              </div>
 
               <h3 className={cn(`mt-4 `, sideBarHeading)}>Theme</h3>
               <ul className="flex flex-col sm:gap-2 xs:gap-[4px] gap-[2px] capitalize text-[14.75px] font-medium">

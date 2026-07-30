@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent } from './card';
-import { FaClock, FaPlay, FaPlus, FaShareAlt } from 'react-icons/fa';
+import { FaClock, FaHeart, FaPlay, FaPlus, FaShareAlt } from 'react-icons/fa';
 import { ITrack } from '@/types';
+import { useTrackLike } from '@/hooks/useTrackLike';
 import { useQueueStore } from '@/store/queueStore';
 import { useToastStore } from '@/store/toastStore';
 import { getImageUrl, cn } from '@/utils';
@@ -28,6 +29,8 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   const addToQueue = useQueueStore((s) => s.addToQueue);
   const setSidebarOpen = useQueueStore((s) => s.setSidebarOpen);
   const showToast = useToastStore((s) => s.showToast);
+  const trackId = track.spotify_id || track.id;
+  const { likeCount, isLiked, isSubmitting, handleLike } = useTrackLike(trackId);
 
   const handleAddToQueueWithFeedback = useCallback(() => {
     addToQueue(track);
@@ -176,6 +179,24 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             aria-label={`Share ${displayTitle}`}
           >
             <FaShareAlt className="w-3 h-3" />
+          </button>
+
+          {/* Like button */}
+          <button
+            onClick={handleLike}
+            disabled={isSubmitting}
+            className={cn(
+              "absolute top-2 left-2 flex items-center gap-1 h-8 rounded-full px-2.5 shadow-lg",
+              "transition-all duration-200 hover:scale-105",
+              isLiked
+                ? "bg-red-500 text-white"
+                : "bg-white text-black",
+              isHovered || likeCount > 0 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            )}
+            aria-label={isLiked ? `Unlike ${displayTitle}` : `Like ${displayTitle}`}
+          >
+            <FaHeart className={cn("w-3 h-3", isLiked && "fill-current")} />
+            <span className="text-xs font-semibold tabular-nums">{likeCount}</span>
           </button>
         </div>
 
